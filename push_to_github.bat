@@ -5,7 +5,7 @@ echo Repository: https://github.com/kishor777777/smart-visitor-management-system
 echo ========================================================
 echo.
 cd /d "%~dp0"
-"C:\Users\Admin\AppData\Local\GitHubDesktop\app-3.5.2\resources\app\git\cmd\git.exe" push -u origin main
+"C:\Users\Admin\AppData\Local\GitHubDesktop\app-3.6.6\resources\app\git\cmd\git.exe" push -u origin main
 echo.
 echo ========================================================
 echo If successful, your code is now live on GitHub!
