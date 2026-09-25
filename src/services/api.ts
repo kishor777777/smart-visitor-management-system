@@ -48,15 +48,17 @@ export const api = {
   async registerStudent(formData: {
     name: string;
     phone: string;
-    email: string;
+    email?: string;
     collegeName: string;
     studentId: string;
-    department: string;
+    department?: string;
     eventName: string;
-    eventDate: string;
+    eventDate?: string;
     purpose: string;
-    hostName: string;
+    hostName?: string;
     remarks?: string;
+    securityAssisted?: boolean;
+    securityStaffId?: string;
   }): Promise<{ success: boolean; message: string; visitor: Visitor }> {
     const res = await fetch(`${API_BASE}/visitors/student-register`, {
       method: 'POST',

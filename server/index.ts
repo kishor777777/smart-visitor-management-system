@@ -179,20 +179,22 @@ app.post('/api/visitors/student-register', async (req: Request, res: Response) =
       purpose,
       hostName,
       remarks,
+      securityAssisted,
+      securityStaffId,
     } = req.body;
 
     // Basic validation
-    if (!name || !phone || !email || !collegeName || !studentId || !eventName || !purpose) {
+    if (!name || !phone || !collegeName || !studentId || !eventName || !purpose) {
       return res.status(400).json({ error: 'Please provide all required fields' });
     }
 
     const visitDate = eventDate || new Date().toISOString().split('T')[0];
+    const isAssisted = Boolean(securityAssisted);
 
-    // For planned college events, registrations can be auto-approved
     const visitor = await db.createVisitor({
       name: name.trim(),
       phone: phone.trim(),
-      email: email.trim().toLowerCase(),
+      email: email ? email.trim().toLowerCase() : (isAssisted ? 'student-offline@gate.campus.edu' : ''),
       visitorType: 'EXTERNAL_STUDENT',
       collegeName: collegeName.trim(),
       studentId: studentId.trim().toUpperCase(),
@@ -204,10 +206,10 @@ app.post('/api/visitors/student-register', async (req: Request, res: Response) =
       visitDate,
       status: 'PENDING_APPROVAL',
       approvalStatus: 'PENDING',
-      registeredBy: 'SELF',
+      registeredBy: isAssisted ? (securityStaffId || 'SEC-GATE-01') : 'SELF',
       approvedBy: null,
       approvalRemarks: remarks || null,
-      securityAssisted: false,
+      securityAssisted: isAssisted,
     });
 
     const stats = await db.getStats();
@@ -216,7 +218,9 @@ app.post('/api/visitors/student-register', async (req: Request, res: Response) =
 
     return res.status(201).json({
       success: true,
-      message: 'Student registration submitted successfully! Awaiting faculty approval.',
+      message: isAssisted
+        ? 'Security assisted student registration recorded. Request submitted for Faculty approval.'
+        : 'Student registration submitted successfully! Awaiting faculty approval.',
       visitor,
     });
   } catch (err: any) {

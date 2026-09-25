@@ -54,7 +54,8 @@ export const PortalLayout: React.FC<PortalLayoutProps> = ({ portalRole }) => {
       return [
         { label: 'Security Dashboard', path: '/security/dashboard', icon: LayoutDashboard },
         { label: 'QR Entry/Exit Scanner', path: '/security/scanner', icon: ScanLine, highlight: true },
-        { label: 'Assisted Parent Register', path: '/security/assisted-registration', icon: UserPlus },
+        { label: 'Assisted Student Register', path: '/security/assisted-student-registration', icon: UserPlus },
+        { label: 'Assisted Parent Register', path: '/security/assisted-registration', icon: Users },
         { label: 'Current Campus Visitors', path: '/security/visitors', icon: Users },
         { label: 'Gate Access History', path: '/security/history', icon: History },
       ];
@@ -62,7 +63,7 @@ export const PortalLayout: React.FC<PortalLayoutProps> = ({ portalRole }) => {
     if (portalRole === 'FACULTY') {
       return [
         { label: 'Faculty Dashboard', path: '/faculty/dashboard', icon: LayoutDashboard },
-        { label: 'Pending Parent Requests', path: '/faculty/requests', icon: FileCheck, highlight: true },
+        { label: 'Pending Approvals', path: '/faculty/requests', icon: FileCheck, highlight: true },
       ];
     }
     // ADMIN

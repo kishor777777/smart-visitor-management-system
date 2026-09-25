@@ -130,15 +130,31 @@ export const SecurityDashboard: React.FC = () => {
       </div>
 
       {/* Quick Security Gate Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
+        {/* Assisted Student Registration */}
+        <Link
+          to="/security/assisted-student-registration"
+          className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 shadow-xs hover:shadow-md transition-all flex items-start gap-4 group"
+        >
+          <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+            <UserPlus size={22} />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 text-sm">Assisted Student Register</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Register walk-in external students for symposiums and events.
+            </p>
+          </div>
+        </Link>
+
         {/* Assisted Parent Registration */}
         <Link
           to="/security/assisted-registration"
           className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 shadow-xs hover:shadow-md transition-all flex items-start gap-4 group"
         >
           <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-            <UserPlus size={22} />
+            <Users size={22} />
           </div>
           <div>
             <h3 className="font-bold text-slate-900 text-sm">Assisted Parent Register</h3>

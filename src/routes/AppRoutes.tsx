@@ -16,6 +16,7 @@ import { SecurityLogin } from '../pages/security/SecurityLogin';
 import { SecurityDashboard } from '../pages/security/SecurityDashboard';
 import { SecurityScanner } from '../pages/security/SecurityScanner';
 import { SecurityAssistedRegistration } from '../pages/security/SecurityAssistedRegistration';
+import { SecurityAssistedStudentRegistration } from '../pages/security/SecurityAssistedStudentRegistration';
 import { SecurityVisitors } from '../pages/security/SecurityVisitors';
 import { SecurityHistory } from '../pages/security/SecurityHistory';
 
@@ -58,6 +59,7 @@ export const AppRoutes: React.FC = () => {
       >
         <Route path="/security/dashboard" element={<SecurityDashboard />} />
         <Route path="/security/scanner" element={<SecurityScanner />} />
+        <Route path="/security/assisted-student-registration" element={<SecurityAssistedStudentRegistration />} />
         <Route path="/security/assisted-registration" element={<SecurityAssistedRegistration />} />
         <Route path="/security/visitors" element={<SecurityVisitors />} />
         <Route path="/security/history" element={<SecurityHistory />} />
