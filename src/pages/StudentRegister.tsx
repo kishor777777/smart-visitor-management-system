@@ -13,10 +13,10 @@ import {
   ArrowRight,
   Sparkles,
   BookOpen,
-  Send
+  Send,
+  Clock
 } from 'lucide-react';
 import { api } from '../services/api';
-import confetti from 'canvas-confetti';
 
 export const StudentRegister: React.FC = () => {
   const navigate = useNavigate();
@@ -50,7 +50,6 @@ export const StudentRegister: React.FC = () => {
     try {
       const res = await api.registerStudent(formData);
       setRegisteredVisitor(res.visitor);
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please check the form fields.');
     } finally {
@@ -58,24 +57,24 @@ export const StudentRegister: React.FC = () => {
     }
   };
 
-  // If already registered in this session, show instant confirmation and QR pass CTA
+  // If already registered in this session, show pending approval notice
   if (registeredVisitor) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-3xl p-8 border border-emerald-200 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-md">
-            <CheckCircle2 size={36} />
+        <div className="bg-white rounded-3xl p-8 border border-amber-200 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95">
+          <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-md">
+            <Clock size={36} />
           </div>
 
           <div className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-              Registration Successful & Approved
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              Registration Submitted — Awaiting Faculty Approval
             </span>
             <h2 className="text-2xl font-extrabold text-slate-900">
-              Welcome, {registeredVisitor.name}!
+              Thank You, {registeredVisitor.name}!
             </h2>
-            <p className="text-sm text-slate-500">
-              Your external student pass has been issued and approved for campus entry.
+            <p className="text-sm text-slate-600 max-w-md mx-auto">
+              Your registration request for <strong>{registeredVisitor.eventName}</strong> has been submitted to <strong>{registeredVisitor.hostName || 'Faculty Coordinator'}</strong> for review.
             </p>
           </div>
 
@@ -85,8 +84,8 @@ export const StudentRegister: React.FC = () => {
               <p className="text-base font-bold text-indigo-700">{registeredVisitor.visitorId}</p>
             </div>
             <div>
-              <p className="text-slate-400 font-medium">Status</p>
-              <p className="font-semibold text-emerald-700">{registeredVisitor.status}</p>
+              <p className="text-slate-400 font-medium">Current Status</p>
+              <p className="font-semibold text-amber-700">{registeredVisitor.status}</p>
             </div>
             <div>
               <p className="text-slate-400 font-medium">College</p>
@@ -98,12 +97,19 @@ export const StudentRegister: React.FC = () => {
             </div>
           </div>
 
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 text-left">
+            <p className="font-semibold">Next Step:</p>
+            <p className="mt-1">
+              Once Faculty approves your registration, your <strong>QR Visitor Pass</strong> will be active and unlocked for campus entry. You can check your approval status anytime using your Visitor ID ({registeredVisitor.visitorId}).
+            </p>
+          </div>
+
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               onClick={() => navigate(`/visitor/pass?id=${registeredVisitor.visitorId}`)}
               className="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>View & Download QR Pass</span>
+              <span>Track Approval & QR Pass</span>
               <ArrowRight size={16} />
             </button>
             <button
@@ -344,7 +350,7 @@ export const StudentRegister: React.FC = () => {
           {/* Submit Button */}
           <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-slate-400">
-              * By submitting, you agree to comply with campus visitor regulations.
+              * Student registrations require Faculty Coordinator approval before gate pass is issued.
             </p>
             <button
               type="submit"
@@ -352,11 +358,11 @@ export const StudentRegister: React.FC = () => {
               className="w-full sm:w-auto px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer transition-all"
             >
               {loading ? (
-                <span>Generating QR Pass...</span>
+                <span>Submitting Request...</span>
               ) : (
                 <>
                   <Send size={15} />
-                  <span>Submit & Generate QR Pass</span>
+                  <span>Submit for Faculty Approval</span>
                 </>
               )}
             </button>

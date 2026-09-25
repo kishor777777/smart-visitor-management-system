@@ -9,9 +9,12 @@ import {
   School, 
   Calendar, 
   QrCode, 
-  RefreshCw,
-  MessageSquare,
-  AlertCircle
+  RefreshCw, 
+  MessageSquare, 
+  AlertCircle,
+  Award,
+  Users,
+  Filter
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { Visitor } from '../../types';
@@ -27,6 +30,7 @@ export const FacultyRequests: React.FC = () => {
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'PENDING' | 'PROCESSED'>('PENDING');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'EXTERNAL_STUDENT' | 'PARENT'>('ALL');
 
   // Remarks state for modal / inline approval
   const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null);
@@ -53,7 +57,7 @@ export const FacultyRequests: React.FC = () => {
   const handleOpenActionModal = (visitor: Visitor, type: 'APPROVED' | 'REJECTED') => {
     setSelectedVisitor(visitor);
     setActionType(type);
-    setRemarks(type === 'APPROVED' ? 'Approved by Department Faculty' : 'Rejected: Schedule conflict');
+    setRemarks(type === 'APPROVED' ? 'Approved by Faculty Coordinator' : 'Rejected by Faculty');
   };
 
   const handleConfirmDecision = async () => {
@@ -81,8 +85,16 @@ export const FacultyRequests: React.FC = () => {
     }
   };
 
-  const pendingRequests = visitors.filter((v) => v.status === 'PENDING_APPROVAL');
-  const processedRequests = visitors.filter((v) => v.status !== 'PENDING_APPROVAL' && v.visitorType === 'PARENT');
+  let pendingRequests = visitors.filter((v) => v.status === 'PENDING_APPROVAL');
+  let processedRequests = visitors.filter((v) => v.status !== 'PENDING_APPROVAL');
+
+  if (typeFilter !== 'ALL') {
+    pendingRequests = pendingRequests.filter((v) => v.visitorType === typeFilter);
+    processedRequests = processedRequests.filter((v) => v.visitorType === typeFilter);
+  }
+
+  const allPendingCount = visitors.filter((v) => v.status === 'PENDING_APPROVAL').length;
+  const allProcessedCount = visitors.filter((v) => v.status !== 'PENDING_APPROVAL').length;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -95,10 +107,10 @@ export const FacultyRequests: React.FC = () => {
             <span>Faculty Verification Desk</span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 mt-1">
-            Parent Visit Authorization & Approvals
+            Visitor Authorization & Approvals
           </h1>
           <p className="text-xs text-slate-500">
-            Review parent visit requests for your department students. Once approved, a unique QR pass is unlocked for the visitor.
+            Review and approve External Student symposium and Parent visit requests. Once approved, an active QR pass is unlocked for campus gate entry.
           </p>
         </div>
 
@@ -111,34 +123,72 @@ export const FacultyRequests: React.FC = () => {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-1">
-        <button
-          onClick={() => setActiveTab('PENDING')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-            activeTab === 'PENDING'
-              ? 'bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs'
-              : 'text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Clock size={15} />
-          <span>Pending Approvals ({pendingRequests.length})</span>
-          {pendingRequests.length > 0 && (
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-          )}
-        </button>
+      {/* Tabs and Type Filters */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('PENDING')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              activeTab === 'PENDING'
+                ? 'bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Clock size={15} />
+            <span>Pending Approvals ({allPendingCount})</span>
+            {allPendingCount > 0 && (
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            )}
+          </button>
 
-        <button
-          onClick={() => setActiveTab('PROCESSED')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-            activeTab === 'PROCESSED'
-              ? 'bg-blue-50 text-blue-900 border border-blue-300 shadow-2xs'
-              : 'text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <CheckCircle2 size={15} />
-          <span>Approved / Processed Visits ({processedRequests.length})</span>
-        </button>
+          <button
+            onClick={() => setActiveTab('PROCESSED')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              activeTab === 'PROCESSED'
+                ? 'bg-blue-50 text-blue-900 border border-blue-300 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <CheckCircle2 size={15} />
+            <span>Processed Visits ({allProcessedCount})</span>
+          </button>
+        </div>
+
+        {/* Filter by Category */}
+        <div className="flex items-center gap-1.5 text-xs">
+          <Filter size={13} className="text-slate-400" />
+          <span className="text-slate-400 font-medium">Filter:</span>
+          <button
+            onClick={() => setTypeFilter('ALL')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer ${
+              typeFilter === 'ALL'
+                ? 'bg-slate-800 text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setTypeFilter('EXTERNAL_STUDENT')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer ${
+              typeFilter === 'EXTERNAL_STUDENT'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+            }`}
+          >
+            Students
+          </button>
+          <button
+            onClick={() => setTypeFilter('PARENT')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer ${
+              typeFilter === 'PARENT'
+                ? 'bg-purple-600 text-white'
+                : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+            }`}
+          >
+            Parents
+          </button>
+        </div>
       </div>
 
       {/* Pending Requests List */}
@@ -151,7 +201,7 @@ export const FacultyRequests: React.FC = () => {
               </div>
               <h3 className="font-bold text-slate-900 text-base">All Caught Up!</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                No pending parent requests currently require faculty approval. New parent registrations will appear here in real time.
+                No pending requests currently require faculty approval. New student and parent registrations will appear here in real time.
               </p>
             </div>
           ) : (
@@ -162,13 +212,17 @@ export const FacultyRequests: React.FC = () => {
               >
                 {/* Request Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <span className="font-mono text-xs font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100">
                       {req.visitorId}
                     </span>
                     <span className="text-xs font-bold text-slate-900">{req.name}</span>
-                    <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                      {req.relationship || 'Parent'}
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      req.visitorType === 'EXTERNAL_STUDENT'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-purple-100 text-purple-800'
+                    }`}>
+                      {req.visitorType === 'EXTERNAL_STUDENT' ? 'External Student' : `Parent (${req.relationship || 'Guardian'})`}
                     </span>
                     {req.securityAssisted && (
                       <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
@@ -182,19 +236,35 @@ export const FacultyRequests: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Details Grid (All Section 11 Requirements) */}
+                {/* Details Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                  <div>
-                    <span className="text-slate-400 font-semibold uppercase text-[10px] block">Student Name</span>
-                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">{req.studentName}</span>
-                    <span className="text-slate-500 text-[11px]">ID: {req.studentId || 'N/A'}</span>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-400 font-semibold uppercase text-[10px] block">Department</span>
-                    <span className="font-semibold text-slate-800 mt-0.5 block">{req.department || 'General'}</span>
-                    <span className="text-slate-500 text-[11px]">Contact: {req.phone}</span>
-                  </div>
+                  {req.visitorType === 'EXTERNAL_STUDENT' ? (
+                    <>
+                      <div>
+                        <span className="text-slate-400 font-semibold uppercase text-[10px] block">College / University</span>
+                        <span className="font-bold text-slate-800 text-sm mt-0.5 block">{req.collegeName || 'N/A'}</span>
+                        <span className="text-slate-500 text-[11px]">Roll: {req.studentId || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-semibold uppercase text-[10px] block">Event Name</span>
+                        <span className="font-semibold text-slate-800 mt-0.5 block">{req.eventName || 'Campus Event'}</span>
+                        <span className="text-slate-500 text-[11px]">Branch: {req.department || 'General'}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <span className="text-slate-400 font-semibold uppercase text-[10px] block">Student Name</span>
+                        <span className="font-bold text-slate-800 text-sm mt-0.5 block">{req.studentName}</span>
+                        <span className="text-slate-500 text-[11px]">ID: {req.studentId || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-semibold uppercase text-[10px] block">Department & Contact</span>
+                        <span className="font-semibold text-slate-800 mt-0.5 block">{req.department || 'General'}</span>
+                        <span className="text-slate-500 text-[11px]">Phone: {req.phone}</span>
+                      </div>
+                    </>
+                  )}
 
                   <div>
                     <span className="text-slate-400 font-semibold uppercase text-[10px] block">Target Host</span>
@@ -237,7 +307,7 @@ export const FacultyRequests: React.FC = () => {
                     className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <CheckCircle2 size={15} />
-                    <span>APPROVE & GENERATE QR PASS</span>
+                    <span>APPROVE & UNLOCK QR PASS</span>
                   </button>
                 </div>
               </div>
@@ -254,8 +324,9 @@ export const FacultyRequests: React.FC = () => {
               <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">Visitor ID</th>
-                  <th className="py-3 px-4">Parent Name</th>
-                  <th className="py-3 px-4">Student & Roll</th>
+                  <th className="py-3 px-4">Category</th>
+                  <th className="py-3 px-4">Visitor Name</th>
+                  <th className="py-3 px-4">Details / College / Student</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Approved By</th>
                   <th className="py-3 px-4">Remarks</th>
@@ -266,8 +337,21 @@ export const FacultyRequests: React.FC = () => {
                 {processedRequests.map((v) => (
                   <tr key={v.visitorId} className="hover:bg-slate-50 transition-colors">
                     <td className="py-3 px-4 font-mono font-bold text-indigo-700">{v.visitorId}</td>
+                    <td className="py-3 px-4">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        v.visitorType === 'EXTERNAL_STUDENT'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {v.visitorType === 'EXTERNAL_STUDENT' ? 'Student' : 'Parent'}
+                      </span>
+                    </td>
                     <td className="py-3 px-4 font-semibold text-slate-900">{v.name}</td>
-                    <td className="py-3 px-4 text-slate-700">{v.studentName} ({v.studentId})</td>
+                    <td className="py-3 px-4 text-slate-700">
+                      {v.visitorType === 'EXTERNAL_STUDENT'
+                        ? `${v.collegeName} (${v.eventName})`
+                        : `Student: ${v.studentName} (${v.studentId})`}
+                    </td>
                     <td className="py-3 px-4">
                       <StatusBadge status={v.status} size="sm" />
                     </td>
@@ -299,10 +383,12 @@ export const FacultyRequests: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-bold text-slate-900 text-base">
-                  {actionType === 'APPROVED' ? 'Confirm Parent Visit Approval' : 'Confirm Rejection'}
+                  {actionType === 'APPROVED' ? 'Confirm Visitor Approval' : 'Confirm Rejection'}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Visitor: <strong>{selectedVisitor.name}</strong> (Student: {selectedVisitor.studentName})
+                  {selectedVisitor.visitorType === 'EXTERNAL_STUDENT'
+                    ? `Student: ${selectedVisitor.name} (${selectedVisitor.collegeName})`
+                    : `Parent: ${selectedVisitor.name} (Student: ${selectedVisitor.studentName})`}
                 </p>
               </div>
             </div>
@@ -315,7 +401,7 @@ export const FacultyRequests: React.FC = () => {
                 rows={3}
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
-                placeholder="Enter remarks for the visitor..."
+                placeholder="Enter remarks for the visitor pass..."
                 className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-500 outline-none resize-none"
               />
             </div>

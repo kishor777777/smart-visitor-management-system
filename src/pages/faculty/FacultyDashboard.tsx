@@ -102,14 +102,14 @@ export const FacultyDashboard: React.FC = () => {
       <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Urgent Parent Requests Requiring Action</h3>
-            <p className="text-xs text-slate-500">Unapproved parents cannot enter campus through the gate</p>
+            <h3 className="text-base font-bold text-slate-900">Pending Requests Requiring Approval</h3>
+            <p className="text-xs text-slate-500">Unapproved visitors cannot enter campus through the gate</p>
           </div>
           <Link
             to="/faculty/requests"
             className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
           >
-            <span>View All</span>
+            <span>View All ({pendingRequests.length})</span>
             <ArrowRight size={13} />
           </Link>
         </div>
@@ -117,23 +117,34 @@ export const FacultyDashboard: React.FC = () => {
         {pendingRequests.length === 0 ? (
           <div className="py-8 text-center text-slate-400 space-y-2">
             <CheckCircle2 size={32} className="mx-auto text-emerald-500" />
-            <p className="text-xs font-semibold text-slate-700">No pending parent visits at this moment.</p>
+            <p className="text-xs font-semibold text-slate-700">No pending visit requests at this moment.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {pendingRequests.map((req) => (
+            {pendingRequests.slice(0, 4).map((req) => (
               <div
                 key={req.visitorId}
                 className="p-5 rounded-2xl border border-amber-200 bg-amber-50/40 hover:bg-amber-50/70 transition-colors flex flex-col justify-between space-y-3"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-indigo-700">{req.visitorId}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-indigo-700">{req.visitorId}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        req.visitorType === 'EXTERNAL_STUDENT'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {req.visitorType === 'EXTERNAL_STUDENT' ? 'Student' : 'Parent'}
+                      </span>
+                    </div>
                     <StatusBadge status={req.status} size="sm" />
                   </div>
                   <h4 className="text-sm font-bold text-slate-900 mt-1">{req.name}</h4>
                   <p className="text-xs text-slate-600">
-                    Student: <strong>{req.studentName}</strong> ({req.department})
+                    {req.visitorType === 'EXTERNAL_STUDENT'
+                      ? `${req.collegeName} • ${req.eventName}`
+                      : `Student: ${req.studentName} (${req.department})`}
                   </p>
                   <p className="text-xs text-slate-500 mt-1 line-clamp-2">{req.purpose}</p>
                 </div>

@@ -202,11 +202,11 @@ app.post('/api/visitors/student-register', async (req: Request, res: Response) =
       purpose: purpose.trim(),
       hostName: hostName ? hostName.trim() : 'Event Coordinator',
       visitDate,
-      status: 'APPROVED',
-      approvalStatus: 'APPROVED',
+      status: 'PENDING_APPROVAL',
+      approvalStatus: 'PENDING',
       registeredBy: 'SELF',
-      approvedBy: 'Auto-Approval (Event Delegate)',
-      approvalRemarks: remarks || 'Registered online for campus event',
+      approvedBy: null,
+      approvalRemarks: remarks || null,
       securityAssisted: false,
     });
 
@@ -216,7 +216,7 @@ app.post('/api/visitors/student-register', async (req: Request, res: Response) =
 
     return res.status(201).json({
       success: true,
-      message: 'Student registered successfully and QR Visitor Pass generated!',
+      message: 'Student registration submitted successfully! Awaiting faculty approval.',
       visitor,
     });
   } catch (err: any) {
